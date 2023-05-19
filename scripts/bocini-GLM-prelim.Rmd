@@ -182,12 +182,11 @@ In order to get insights on how well the model is fitting the data, a Pearson-Ch
 \newpage
 
 ## Model assessment
-
-To perform model assessment for the GLM-Quasi-Poisson model with equine_cases as the dependent variable and PBR, human_density, and PBR*human_density as the independent variables, we first need to state the model assumptions.
+A final model assessment is now carried out to make sure that we are not (substantially) violating any of the assumption of the Quasi-Poisson model. We proceed assumption per assumption 
 
 Model assumptions:
 
-* Count outcome: equine_cases follows a Quasi-Poisson distribution.
+* Count outcome: equine_cases follows a Quasi-Poisson distribution. In order to check this assumption we proceed by graphycal assessment.
 
 ```{r  , fig.width=8,fig.height=5}
 residuals <- residuals(m1)
@@ -195,27 +194,45 @@ residuals <- residuals(m1)
 # Create diagnostic plots
 par(mfrow = c(2, 2))  # Set up a 2x2 grid of plots
   # Residuals vs. Fitted values
-plot(residuals)  # Histogram or density plot of residuals
-plot(m1, which = 1)  # Normal Q-Q plot
+residual_density <- density(residuals)
+# Create density plot of residuals
+plot(residual_density, main = "Density Plot of Residuals",
+     xlab = "Residuals", ylab = "Density")
+plot(m1, which = 1, )  
 plot(m1, which = 2)
 ```
+From this plot we can see that there is no major violation of this assumption. The density plot is not particularly skewed, the residual vs fitted plot shows point randomly scattered around the horizontal line with no evident trend, and finally the QQ plot shows points very near to the theoretical diagonal. 
+* Independent observations: The observations in the dataset are independent of each other. Verifying this assumption depends on how the data were collected, and it may be challenging to assess this assumption directly. In this case, however, we have no reason to believe that the collection of data, which is census data and animal deaths reports, was not independent observation from observation.
 
-* Independent observations: The observations in the dataset are independent of each other.
-
-* Linear relation between log count and linear predictor: There is a linear relationship between the log * count of equine_cases and the linear predictor PBR + human_density + PBR*human_density.
-```{r  , fig.width=4,fig.height=3}
+* Linear relation between log count and linear predictor: There is a linear relationship between the log(count) of equine_cases and the linear predictor PBR + human_density + PBR*human_density.
+```{r  , fig.width=4,fig.height=2}
 linear_predictor <- m1$linear.predictors
 log_count <- log(westnilesc$equine_cases)
 
 # Create a scatter plot
-plot(linear_predictor, log_count, xlab = "Linear Predictor", ylab = "Log Count")
-#abline(lm(log_count ~ linear_predictor), col = "red")
+ggplot(westnilesc, aes(x = linear_predictor, y = log_count)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, col = "#000099") +  # Add a trend line 
+  labs(x = "Linear Predictor", y = "Log Count") +
+  scale_color_manual(values = c("#000099", "#FF0000"))  # Customize colors
 ```
 
+Once again, graphical assessment comes to help, and is showing a fair linear relationship between the two axis of interest.
+
+We can safely conclude that the assumption underlying the model of interest are not violated.
 
 ## Conclusions
 
-add them
+The final model we are proposing is the following:+
+$$Y|X_1,X_2, X_3 \sim QPois(\lambda, \alpha) $$ 
+where $\hat{\lambda}$ follows:
+$$log(\hat{\lambda}) = -6.98 + 5329.84 \times PBR + 0.001\times  HD + 26.00 \times PBR \times HD + log(FARMS)$$
+Hence, this study suggests that monitoring dead birds is a useful tool for predicting West Nile Virus (WNV) infection in both animals and humans. We adjusted for the effect of human population density on the association between dead bird counts and WNV cases in horses. Despite this adjustment, we still found a strong connection between WNV-related bird deaths and the risk of WNV infection in horses. These findings have important implications for public health as birds, which transmit WNV, can affect both equids and humans. Although there may be some biases and limitations in our study, the strong association supports the idea that WNV-related bird deaths can predict veterinary and human WNV infection. Monitoring dead birds may be more effective than mosquito surveillance for WNV prediction in South Carolina, where this study took place. Further research is needed to assess its value in predicting human WNV infection and to compare it with other surveillance methods.
 
 ## References
+
+[1] R.S. Roberts and I.M. Foppa (2006). "Prediction of Equine Risk of West Nile Virus Infection Based on Dead Bird Surveillance," Vector-Bourne and Zoonotic Diseases, Vol. 6, #1, pp. 1-6
+
+[2] Kleiber, C., & Zeileis, A. (2021). AER: Applied Econometrics with R. Version 1.2-9.1. URL: https://CRAN.R-project.org/package=AER
+
 
