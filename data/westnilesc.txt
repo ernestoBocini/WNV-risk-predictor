@@ -1,0 +1,25 @@
+Dataset: westnilesc.dat
+
+Source: R.S. Roberts and I.M. Foppa (2006). "Prediction of Equine Risk
+of West Nile Virus Infection Based on Dead Bird Surveillance," 
+Vector-Bourne and Zoonotic Diseases, Vol. 6, #1, pp. 1-6
+
+Description: County level data for South Carolina on numbers of cases
+west nile virus in birds and equines, numbers of farms, area, and population.
+Key variables:
+Positive Bird Rate = # Bird Cases of West Nile / Human Population
+Positive Equine Rate = # of Equine Cases of West Nile / # Farms
+
+Poisson Regression Model: # Equine Cases = PBR + Human Density + PBR*HD
+w/ log(farms) as offset
+
+Variables/Columns
+county   1-24
+bird cases   25-27
+equine cases  34-35
+farms  40-43
+area     47-51
+population   53-59
+human density    61-67
+positive bird rate   71-79
+Positive Equine Rate   83-91
